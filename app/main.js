@@ -1,7 +1,9 @@
 const fs = require("fs");
 // es6 destructuring syntax
 // pull off certain properties of an obj
-const { app, BrowserWindow, dialog } = require("electron");
+
+// can pull in menu and its many menu items
+const { app, BrowserWindow, dialog, Menu } = require("electron");
 
 // dialog is native per file system
 
@@ -41,6 +43,13 @@ app.on("ready", () => {
   mainWindow = new BrowserWindow({ show: false });
   // after this function happens, this window is open for garbage
   // collection
+
+  // macos has special case for first menu item
+  // node can tell what platform we're on
+
+
+  // wait until ready`
+  Menu.setApplicationMenu(applicationMenu);
 
   // __dirname resolves to current file system place
   // node convention
@@ -146,3 +155,46 @@ const openFile = file => {
   // ipc = interprocess communication
   mainWindow.webContents.send("file-opened", file, content);
 };
+
+// basic js data structure to build for it 
+// can create context menus 
+// any type of menu via this menu constructor
+const template = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Open File',
+        click() {
+          console.log('Open File');
+        }
+      }
+    ]
+  }
+];
+
+// darwin === macos
+if (process.platform === 'darwin') {
+  // when we build the electron app 
+  // we'll need to rename here
+  const applicationName = 'Fire Sale';
+
+  // unshift adds to the beginning 
+  template.unshift({
+    label: applicationName,
+    submenu: [
+      {
+        label: `About ${applicationName}`,
+      },
+      {
+        label: `Quit ${applicationName}`
+      }
+    ]
+  });
+}
+
+// if you dismiss default application menu
+// then you lose copy and paste 
+
+
+const applicationMenu = Menu.buildFromTemplate(template);
